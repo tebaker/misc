@@ -13,12 +13,9 @@ jitter_time = reset_time = 1
 
 # every time this function is called, takes the mouse and jitters it around a bit
 def jitterMouse(mouse):
-    print('in jitterMouse')
     # for i in range(0, 10):
     x = random.uniform(-5, 5)
     y = random.uniform(-5, 5)
-
-    print(x, y)
 
     mouse.position = (600 + x, 600 + y)
 
