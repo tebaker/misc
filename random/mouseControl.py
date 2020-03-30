@@ -14,12 +14,12 @@ while True:  # making a loop
     # Set pointer position
     mouse.position = (500, 500)
 
-    time.sleep(0.1)
+    time.sleep(0.5)
 
 	# Set pointer position
     mouse.position = (600, 600)
 
-    time.sleep(0.1)
+    time.sleep(0.5)
 
     if keyboard.is_pressed('q'):  # if key 'q' is pressed 
         print('Exiting program')
