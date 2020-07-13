@@ -59,71 +59,6 @@ struct missionItem {
 	float distFromPlayer = 0.0;
 };
 
-////////////////////////////////////////////////////////////////////////////////////////
-// YOUR CODE HERE: You're free to chose the sorting algorithm, but it should be 
-//    appropriate for the problem.  You are expected to write this yourself
-//    from scratch without using anything from <algorithm> or other libraries.
-//
-// Since the mission data is NOT ready as-is, I take that as it needs to be changed
-// to make it ready. ---->>>> > rewite the json file.
-//
-// *** Insersion Sort*** is my choice
-//
-// EXPLAIN
-//
-//
-////////////////////////////////////////////////////////////////////////////////////////
-void Sort(json& list)
-{
-	// Converting the json list to vector list for easier sorting
-	std::vector<missionItem> missionsContainer = convertFromJson(list);
-
-	// Holding total number of missions
-	int numMissions = list.at("missions").size();
-
-	// Each new element will be inserted into the list at its creation
-	std::vector<missionItem>::iterator it = missionsContainer.begin();
-
-	// Key is first element distance in the list
-	float key = it->distFromPlayer;
-
-	// loop until a location in vector for new item is found
-	while (it != missionsContainer.end())
-	{			
-		// If the current distance to player is less than or equal to key,
-		// insert in place
-		if (it->distFromPlayer <= key)
-		{
-			missionsContainer.insert(it, newItem);
-		}
-		// If the iterator is the last element, insert new item at end 
-		else if (it == missionsContainer.end())
-		{
-			missionsContainer.insert(it, newItem);
-		}
-		// If the current distance to player is greater to key,
-		// then it needs to go farther back in the list
-		else if (it->distFromPlayer > key)
-		{
-			it++;
-		}
-	}
-
-	for (auto it = missionsContainer.begin(); it != missionsContainer.end(); it++)
-	{
-		std::cout << "name: " << it->title << ". Dist: " << it->distFromPlayer << std::endl;
-	}
-}// END - Sort
-
-void SendToUI(json& data)
-{
-	////////////////////////////////////////////////////////////////////////////////////////
-	// YOUR CODE HERE: Imagine this is where the data gets handed off to the UI.
-	//    For this test, just print out the mission data to the console in a clear way.
-	////////////////////////////////////////////////////////////////////////////////////////
-	std::cout << "SendToUI Called" << std::endl;
-}// END - SendToUI
-
 std::vector<missionItem> convertFromJson(json data)
 {
 	std::vector<missionItem> missionsContainer;
@@ -154,6 +89,77 @@ std::vector<missionItem> convertFromJson(json data)
 
 	return missionsContainer;
 }// END - convertFromJson
+
+////////////////////////////////////////////////////////////////////////////////////////
+// YOUR CODE HERE: You're free to chose the sorting algorithm, but it should be 
+//    appropriate for the problem.  You are expected to write this yourself
+//    from scratch without using anything from <algorithm> or other libraries.
+//
+// Since the mission data is NOT ready as-is, I take that as it needs to be changed
+// to make it ready. ---->>>> > rewite the json file.
+//
+// *** Insersion Sort*** is my choice
+//
+// EXPLAIN
+//
+//
+////////////////////////////////////////////////////////////////////////////////////////
+void Sort(json& list)
+{
+	// Converting the json list to vector list for easier sorting
+	std::vector<missionItem> missionsContainer = convertFromJson(list);
+
+	// Holding total number of missions
+	int numMissions = list.at("missions").size();
+
+	// Each new element will be inserted into the list at its creation
+	std::vector<missionItem>::iterator it = missionsContainer.begin();
+
+
+	// looping for every element in vector
+	for (auto itOuter = missionsContainer.begin(); itOuter != missionsContainer.end(); itOuter++)
+	{
+		// Key is current element being sorted
+		float key = it->distFromPlayer;
+
+		// Setting interior loop from current element moving towards the front of the vector
+		auto itInner = itOuter;
+		
+		while (true)
+		{
+			// If inner is first element of vector, swap element with key
+			if (itInner == missionsContainer.begin())
+			{
+
+			}
+			// If key is less than previous element, check next element
+			else if (key <= itInner->distFromPlayer)
+			{
+				itInner--;
+			}
+			// If key is greater than element to left, swap element with key
+			else if (key > itInner->distFromPlayer)
+			{
+
+			}
+
+		}
+	}
+
+	for (auto it = missionsContainer.begin(); it != missionsContainer.end(); it++)
+	{
+		std::cout << "name: " << it->title << ". Dist: " << it->distFromPlayer << std::endl;
+	}
+}// END - Sort
+
+void SendToUI(json& data)
+{
+	////////////////////////////////////////////////////////////////////////////////////////
+	// YOUR CODE HERE: Imagine this is where the data gets handed off to the UI.
+	//    For this test, just print out the mission data to the console in a clear way.
+	////////////////////////////////////////////////////////////////////////////////////////
+	std::cout << "SendToUI Called" << std::endl;
+}// END - SendToUI
 
 void rewriteJaonData()
 {
