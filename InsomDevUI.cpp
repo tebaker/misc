@@ -100,33 +100,33 @@ void printVector(std::vector<missionItem> vec)
 	}
 }
 
-void rewriteJsonData(json &jsonData, std::vector<missionItem> sortedVec)
+void rewriteJsonData(json& jsonData, std::vector<missionItem> sortedVec)
 {
 	// Holding total number of missions
 	int numMissions = jsonData.at("missions").size();
-	
+
 	std::ofstream file("data.json");
 
 	for (int i = 0; i < numMissions; ++i) {
-
 		// Capturing the title
-		jsonData.at("missions").at(i).at("title") = std::string(sortedVec[i].title);
+		jsonData.at("missions").at(i).at("title") = json::parse(sortedVec[i].title);
+
+		/*
+			Please note that json::parse will take a string variable and turn it in to
+			a json object; therefore, it doesn't inject an extra '\' and '"' into the 
+			final result.
+		*/
 
 		// Capturing the description
-		jsonData.at("missions").at(i).at("desc") = (sortedVec[i].desc);
+		jsonData.at("missions").at(i).at("desc") = json::parse(sortedVec[i].desc);
 
 		// Capturing the x, y coords
 		jsonData.at("missions").at(i).at("position").at(0) = sortedVec[i].x;
 		jsonData.at("missions").at(i).at("position").at(1) = sortedVec[i].y;
 	}
 
-	std::cout << jsonData << std::endl;
-
-	
-	file << jsonData;
-
-	
-
+	// Dumping the sorted and reformatted json data to data.json file
+	file << jsonData.dump(4);
 }// END - rewriteJsonData
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -182,23 +182,17 @@ void Sort(json& list)
 		std::cout << e.what() << std::endl;
 	}
 
-	std::cout << "Sorted" << std::endl;
-	printVector(missionsList);
-	std::cout << std::endl << std::endl;
-
+	// Translating vector list back to json data
 	rewriteJsonData(list, missionsList);
-
-	std::cout << "End of sort" << std::endl;
-
 }// END - Sort
 
+////////////////////////////////////////////////////////////////////////////////////////
+// YOUR CODE HERE: Imagine this is where the data gets handed off to the UI.
+//    For this test, just print out the mission data to the console in a clear way.
+////////////////////////////////////////////////////////////////////////////////////////
 void SendToUI(json& data)
 {
-	////////////////////////////////////////////////////////////////////////////////////////
-	// YOUR CODE HERE: Imagine this is where the data gets handed off to the UI.
-	//    For this test, just print out the mission data to the console in a clear way.
-	////////////////////////////////////////////////////////////////////////////////////////
-	std::cout << "SendToUI Called" << std::endl;
+	
 }// END - SendToUI
 
 int main()
