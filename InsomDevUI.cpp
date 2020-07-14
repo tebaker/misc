@@ -54,10 +54,55 @@ const Vec2 player_pos(101.29f, 85.4298f);
 struct missionItem {
 	std::string title = "";
 	std::string desc = "";
+	std::string descParagraph = "";
 	float x = 0.0;
 	float y = 0.0;
 	float distFromPlayer = 0.0;
 };
+
+void printVector(missionItem vec, int missionNum)
+{
+	printf("*  Mission %i)\n", missionNum);
+	printf("* \tTitle.................. %s\n", vec.title.c_str());
+	printf("* \tLocation............... (%f, %f)\n", vec.x, vec.y);
+	printf("* \tDistance From Player...  %f units\n", vec.distFromPlayer);
+
+	std::string holdStr = vec.descParagraph;
+	int subStrStart = 0;
+	int subStrEnd = 0;
+	int numWordsForPrint = 0;
+	bool firstPrint = true;
+
+	// Adding 7 words to each line for more readability
+	for (int i = 0; i < holdStr.size(); i++)
+	{
+		if (holdStr[i] == ' ')
+		{
+			numWordsForPrint++;
+		}
+
+		if (firstPrint == true && numWordsForPrint == 7)
+		{
+			printf("* \tMission Description.... %s\n", holdStr.substr(subStrStart, subStrEnd).c_str());
+			numWordsForPrint = 0;
+			subStrStart = i;
+			subStrEnd = 0;
+			firstPrint = false;
+		}
+		
+		if (firstPrint == false && numWordsForPrint == 7)
+		{
+			printf("* \t                        %s\n", holdStr.substr(subStrStart, subStrEnd).c_str());
+			numWordsForPrint = 0;
+			subStrStart = i;
+			subStrEnd = 0;
+		}
+
+		subStrEnd++;
+	}
+	printf("* \t                        %s\n", holdStr.substr(subStrStart).c_str());
+	printf("*\n");
+}
 
 std::vector<missionItem> convertFromJson(json data)
 {
@@ -75,9 +120,14 @@ std::vector<missionItem> convertFromJson(json data)
 		// Capturing the description
 		newItem.desc = data.at("missions").at(i).at("desc").dump();
 
+		// Holding the description paragraph from the "loc" data section
+		auto holdDescPara = data.at("loc");
+
+		//newItem.descParagraph = data.at("loc").at(newItem.desc).dump();
+
 		// Capturing the x, y coords
-		newItem.x = data.at("missions").at(i).at("position").at(0).get<int>();
-		newItem.y = data.at("missions").at(i).at("position").at(1).get<int>();
+		newItem.x = data.at("missions").at(i).at("position").at(0).get<float>();
+		newItem.y = data.at("missions").at(i).at("position").at(1).get<float>();
 
 		// Calculating distance between player_pos and newItem pos
 		newItem.distFromPlayer = sqrt(pow((newItem.x - player_pos.x), 2)
@@ -87,18 +137,19 @@ std::vector<missionItem> convertFromJson(json data)
 		unsortedMissions.push_back(newItem);
 	}
 
+	// Looping through a second time to get the loc value descriptions
+	int index = 0;
+	for (auto it = data.at("loc").begin(); it != data.at("loc").end(); it++)
+	{
+		// incr it to get the loc descriptions, not the loc names
+		it++;
+		
+		unsortedMissions[index].descParagraph = it.value().dump();	
+
+		index++;
+	}
 	return unsortedMissions;
 }// END - convertFromJson
-
-
-void printVector(std::vector<missionItem> vec)
-{
-	for (auto it = vec.begin(); it != vec.end(); it++)
-	{
-		printf("Title: %s, Desc: %s, (%f, %f), %f units from player.\n",
-			it->title.c_str(), it->desc.c_str(), it->x, it->y, it->distFromPlayer);
-	}
-}
 
 void rewriteJsonData(json& jsonData, std::vector<missionItem> sortedVec)
 {
@@ -151,11 +202,7 @@ void Sort(json& list)
 	// Holding total number of missions
 	// int numMissions = list.at("missions").size();
 
-	std::cout << "Unsorted" << std::endl;
-	printVector(missionsList);
-	std::cout << std::endl << std::endl;
 	try {
-
 
 		// looping through all elements in json vector
 		for (std::vector<missionItem>::iterator it = missionsList.begin(); it != missionsList.end(); it++)
@@ -192,7 +239,14 @@ void Sort(json& list)
 ////////////////////////////////////////////////////////////////////////////////////////
 void SendToUI(json& data)
 {
-	
+	// translating the sorted json back to vector for easy printing
+	std::vector<missionItem> vecForPrint = convertFromJson(data);
+
+	for (int i = 0; i < vecForPrint.size(); i++)
+	{
+		printVector(vecForPrint[i], i);
+	}
+
 }// END - SendToUI
 
 int main()
@@ -210,14 +264,13 @@ int main()
 	//  - Think carefully about what data should be sent to the UI.
 	////////////////////////////////////////////////////////////////////////////////////////
 
-	try {
-
+	try
+	{
 		Sort(data);
-		//SendToUI(data);
-
-
+		SendToUI(data);
 	}
-	catch (std::exception& e) {
+	catch (std::exception& e)
+	{
 		std::cout << e.what() << std::endl;
 	}
 
