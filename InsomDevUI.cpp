@@ -61,7 +61,7 @@ struct missionItem {
 
 std::vector<missionItem> convertFromJson(json data)
 {
-	std::vector<missionItem> missionsContainer;
+	std::vector<missionItem> unsortedMissions;
 
 	// Holding total number of missions
 	int numMissions = data.at("missions").size();
@@ -76,19 +76,55 @@ std::vector<missionItem> convertFromJson(json data)
 		newItem.desc = data.at("missions").at(i).at("desc").dump();
 
 		// Capturing the x, y coords
-		newItem.x = data.at("missions").at(i).at("position").at(0);
-		newItem.y = data.at("missions").at(i).at("position").at(1);
+		newItem.x = data.at("missions").at(i).at("position").at(0).get<int>();
+		newItem.y = data.at("missions").at(i).at("position").at(1).get<int>();
 
 		// Calculating distance between player_pos and newItem pos
 		newItem.distFromPlayer = sqrt(pow((newItem.x - player_pos.x), 2)
 			+ pow((newItem.y - player_pos.y), 2));
 
 		// pushing new item
-		missionsContainer.push_back(newItem);
+		unsortedMissions.push_back(newItem);
 	}
 
-	return missionsContainer;
+	return unsortedMissions;
 }// END - convertFromJson
+
+
+void printVector(std::vector<missionItem> vec)
+{
+	for (auto it = vec.begin(); it != vec.end(); it++)
+	{
+		printf("Title: %s, Desc: %s, (%f, %f), %f units from player.\n",
+			it->title.c_str(), it->desc.c_str(), it->x, it->y, it->distFromPlayer);
+	}
+}
+
+void rewriteJsonData(json &jsonData, std::vector<missionItem> sortedVec)
+{
+	// Holding total number of missions
+	int numMissions = jsonData.at("missions").size();
+	
+	std::ofstream file("data.json");
+
+	for (int i = 0; i < numMissions; ++i) {
+
+		// Capturing the title
+		jsonData.at("missions").at(i).at("title") = sortedVec[i].title;
+
+		// Capturing the description
+		jsonData.at("missions").at(i).at("desc") = sortedVec[i].desc;
+
+		// Capturing the x, y coords
+		jsonData.at("missions").at(i).at("position").at(0) = sortedVec[i].x;
+		jsonData.at("missions").at(i).at("position").at(1) = sortedVec[i].y;
+	}
+	
+	file << jsonData.dump(4);
+
+	std::cout << jsonData << std::endl;
+
+}// END - rewriteJsonData
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // YOUR CODE HERE: You're free to chose the sorting algorithm, but it should be 
@@ -98,7 +134,7 @@ std::vector<missionItem> convertFromJson(json data)
 // Since the mission data is NOT ready as-is, I take that as it needs to be changed
 // to make it ready. ---->>>> > rewite the json file.
 //
-// *** Insersion Sort*** is my choice
+// *** Insersion Sort*** is my choice Explain why used vectors, too.
 //
 // EXPLAIN
 //
@@ -107,49 +143,50 @@ std::vector<missionItem> convertFromJson(json data)
 void Sort(json& list)
 {
 	// Converting the json list to vector list for easier sorting
-	std::vector<missionItem> missionsContainer = convertFromJson(list);
+	std::vector<missionItem> missionsList = convertFromJson(list);
 
 	// Holding total number of missions
-	int numMissions = list.at("missions").size();
+	// int numMissions = list.at("missions").size();
 
-	// Each new element will be inserted into the list at its creation
-	std::vector<missionItem>::iterator it = missionsContainer.begin();
+	std::cout << "Unsorted" << std::endl;
+	printVector(missionsList);
+	std::cout << std::endl << std::endl;
+	try {
 
 
-	// looping for every element in vector
-	for (auto itOuter = missionsContainer.begin(); itOuter != missionsContainer.end(); itOuter++)
-	{
-		// Key is current element being sorted
-		float key = it->distFromPlayer;
-
-		// Setting interior loop from current element moving towards the front of the vector
-		auto itInner = itOuter;
-		
-		while (true)
+		// looping through all elements in json vector
+		for (std::vector<missionItem>::iterator it = missionsList.begin(); it != missionsList.end(); it++)
 		{
-			// If inner is first element of vector, swap element with key
-			if (itInner == missionsContainer.begin())
-			{
+			// Setting key to largest possible value for evaluation purposes
+			float key = std::numeric_limits<float>::max();
 
-			}
-			// If key is less than previous element, check next element
-			else if (key <= itInner->distFromPlayer)
-			{
-				itInner--;
-			}
-			// If key is greater than element to left, swap element with key
-			else if (key > itInner->distFromPlayer)
-			{
+			std::vector<missionItem>::iterator currHigh;
 
+			for (std::vector<missionItem>::iterator itIn = it; itIn != missionsList.end(); itIn++)
+			{
+				// if current element is greater than key, set new key
+				if (itIn->distFromPlayer <= key)
+				{
+					key = itIn->distFromPlayer;
+					currHigh = itIn;
+				}
 			}
-
+			std::rotate(it, currHigh, missionsList.end());
 		}
 	}
-
-	for (auto it = missionsContainer.begin(); it != missionsContainer.end(); it++)
+	catch (std::exception& e)
 	{
-		std::cout << "name: " << it->title << ". Dist: " << it->distFromPlayer << std::endl;
+		std::cout << e.what() << std::endl;
 	}
+
+	std::cout << "Sorted" << std::endl;
+	printVector(missionsList);
+	std::cout << std::endl << std::endl;
+
+	rewriteJsonData(list, missionsList);
+
+	std::cout << "End of sort" << std::endl;
+
 }// END - Sort
 
 void SendToUI(json& data)
@@ -160,11 +197,6 @@ void SendToUI(json& data)
 	////////////////////////////////////////////////////////////////////////////////////////
 	std::cout << "SendToUI Called" << std::endl;
 }// END - SendToUI
-
-void rewriteJaonData()
-{
-
-}// END - rewriteJsonData
 
 int main()
 {
