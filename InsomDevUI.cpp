@@ -110,19 +110,22 @@ void rewriteJsonData(json &jsonData, std::vector<missionItem> sortedVec)
 	for (int i = 0; i < numMissions; ++i) {
 
 		// Capturing the title
-		jsonData.at("missions").at(i).at("title") = sortedVec[i].title;
+		jsonData.at("missions").at(i).at("title") = std::string(sortedVec[i].title);
 
 		// Capturing the description
-		jsonData.at("missions").at(i).at("desc") = sortedVec[i].desc;
+		jsonData.at("missions").at(i).at("desc") = (sortedVec[i].desc);
 
 		// Capturing the x, y coords
 		jsonData.at("missions").at(i).at("position").at(0) = sortedVec[i].x;
 		jsonData.at("missions").at(i).at("position").at(1) = sortedVec[i].y;
 	}
-	
-	file << jsonData.dump(4);
 
 	std::cout << jsonData << std::endl;
+
+	
+	file << jsonData;
+
+	
 
 }// END - rewriteJsonData
 
