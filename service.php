@@ -31,8 +31,26 @@ if ($result = mysqli_query($con, $sql))
  
 	// Finally, encode the array to JSON and output the results
 	echo json_encode($resultArray);
+
+	/*
+		[
+			{
+				"Name":"Apple",
+				"Address":"1 Infinite Loop Cupertino, CA",
+				"Latitude":"37.331741",
+				"Longitude":"-122.030333"
+			},
+			{
+				"Name":"Googleplex",
+				"Address":"1600 Amphitheater Pkwy, Mountain View, CA",
+				"Latitude":"37.421999",
+				"Longitude":"-122.083954"
+			}
+		]
+	*/
 }
  
 // Close connections
 mysqli_close($con);
 ?>
+
