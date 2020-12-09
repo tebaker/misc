@@ -8,6 +8,9 @@ class State:
         self.rightBank = rBank
         self.boatLoc = boatLocation
     
+    def getBoatLoc(self):
+        return self.boatLoc
+
     def print(self):
         print("Left Bank: ", (self.leftBank.getSheep(), self.leftBank.getWolves()))
         print("Right Bank: ", (self.rightBank.getSheep(), self.rightBank.getWolves()))
@@ -51,13 +54,33 @@ class SemanticNetsAgent:
         self.listOfPreviousStates.append(currentState)
 
         while self.inProgress:
-            
+            self.generate(currentState)
             break
 
     # Generate will populate a list of all possible next-states the game
     # progress to regardless of legality or not
-    def generate(self):        
-        pass
+    def generate(self, currentState):
+        # Holding the generations
+        generatedStates = []
+
+        # Getting left bank sheep, wolves
+        lBankSheep = currentState.leftBank.getSheep()
+        lBankWolves = currentState.leftBank.getWolves()
+
+        # Getting right bank sheep, wolves
+        rBankSheep = currentState.rightBank.getSheep()
+        rBankWolves = currentState.rightBank.getWolves()
+
+        # Getting current boat location
+        currBoatLoc = currentState.getBoatLoc()
+
+        if currBoatLoc == "left":    
+            # Possible generations for left bank:
+            # 1 sheep, 1 wolf
+            if lBankSheep - 1 >= 0 and lBankWolves - 1 >= 0:
+                generatedStates.append()
+            # 1 sheep, 0 wolves
+            # 0 sheep, 1 wolf
 
     # Test will take in list of generated possible next-states and evaluate
     # them for legality, discarding the illegal next-states
